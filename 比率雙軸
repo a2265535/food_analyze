@@ -1,0 +1,41 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+
+df_2729 = pd.read_csv('2729_table.csv')
+df_2727 = pd.read_csv('2727_table.csv')
+
+# 篩選出獲利能力為"流動資產(%)"的資料
+df_2729_mg = df_2729[df_2729["獲利能力"] == "流動資產 (%)"]
+
+
+
+# 提取需要的數值
+x = df_2729_mg.columns[1:].values  # Exclude the problematic column header
+y_2729 = df_2729.iloc[23, 1:].values.astype(float)  # Exclude the problematic column
+y_2727 = df_2727.iloc[23, 1:].values.astype(float)
+fig, ax1 = plt.subplots()
+
+# Sort x in ascending order
+#x_sorted = sorted(x)
+
+
+# 設定第一個y軸 (2729)
+ax1.plot(x, y_2729, color='red', marker='o')
+ax1.set_xlabel('yesr')
+ax1.set_ylabel('current assets(%) (2729)', color='red')
+ax1.tick_params(axis='y', labelcolor='red')
+
+# 設定第二個y軸 (2727)
+ax2 = ax1.twinx()
+ax2.plot(x, y_2727, color='blue', marker='o')
+ax2.set_ylabel('current assets (2727)', color='blue')
+ax2.tick_params(axis='y', labelcolor='blue')
+
+# 設定標題
+plt.title('current assets comparison')
+
+# 顯示圖表
+plt.show()
+
