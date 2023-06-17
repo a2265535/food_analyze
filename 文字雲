@@ -1,0 +1,46 @@
+from wordcloud import WordCloud, STOPWORDS
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import os
+import jieba
+import jieba.analyse
+from collections import Counter # 次數統計
+
+dictfile = "C:\\Users\\USER\\Desktop\\餐飲資料\\jieba\\dict.txt"  # 字典檔
+stopfile = "C:\\Users\\USER\\Desktop\\餐飲資料\\stopword.txt"  # stopwords
+fontpath = "C:\\Users\\USER\\Desktop\\餐飲資料\\kaiu.ttf"  # 字型檔
+mdfile=r"C:\Users\USER\Desktop\餐飲資料\CSV\f647a201a7817126\ptt_ttfb_final.json" #文檔
+folder_path = r"C:\Users\USER\Desktop\餐飲資料\food"  #資料夾
+pngfile = r"C:\Users\USER\Desktop\餐飲資料\圖庫\9555.jpg_wh860.jpg"     # 剛才下載存的底圖
+#讀取資料夾內所有TXT
+# file_paths = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith(".txt")]
+# text = ""
+# for file_path in file_paths:
+#     with open(file_path, "r", encoding="utf-8") as file:
+#         text += file.read()
+#單一文件
+text = open(mdfile,"r",encoding="cp950").read()
+
+alice_mask = np.array(Image.open(pngfile))
+
+jieba.set_dictionary(dictfile)
+jieba.analyse.set_stop_words(stopfile)
+
+
+tags = jieba.analyse.extract_tags(text, topK=50)#顯示前50多的字
+
+seg_list = jieba.lcut(text, cut_all=False)
+dictionary = Counter(seg_list)
+
+freq = {}
+for ele in dictionary:
+    if ele in tags:
+        freq[ele] = dictionary[ele]
+print(freq) # 計算出現的次數
+#background_color="black"
+wordcloud = WordCloud(background_color="black", mask=alice_mask, contour_width=3, contour_color='steelblue', font_path= fontpath).generate_from_frequencies(freq)
+plt.figure()
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
