@@ -1,0 +1,64 @@
+import requests
+import json
+from bs4 import BeautifulSoup
+import time
+import pandas as pd
+import csv
+
+response = requests.get("https://ifoodie.tw/explore/%E5%8F%B0%E5%8C%97%E5%B8%82/list/%E9%8D%8B%E9%A1%9E")
+soup = BeautifulSoup(response.text, "html.parser")
+
+
+url="https://ifoodie.tw/"
+
+
+
+
+restaurant_url_elements = soup.find_all('a', class_='jsx-1156793088 title-text')
+name_elements = soup.find_all('a', class_='jsx-1156793088 title-text')
+address_elements = soup.find_all("div", class_="jsx-1156793088 address-row")
+category_elements = soup.find_all("div", class_="jsx-1156793088 category-row")
+
+
+data_list = []
+
+
+for i in range(min(len(restaurant_url_elements), len(name_elements), len(address_elements), len(category_elements))):
+    restaurant_url = url + restaurant_url_elements[i]['href']
+    name = name_elements[i].text.strip()
+    address = address_elements[i].text.strip()
+    category = category_elements[i]
+
+    tags = category.find_all("a", class_="jsx-1156793088")
+    tags_data = []
+    for tag in tags:
+        tag_name = tag.text.strip()
+        tag_url = tag['href']
+
+        tag_data = {
+            'tag': tag_name,
+            'tag_url': tag_url
+        }
+        tags_data.append(tag_data)
+
+ 
+    data = {
+        'restaurant_url': restaurant_url,
+        'name': name,
+        'address': address,
+        'category': tags_data
+    }
+    data_list.append(data)    
+
+
+fieldnames = ['restaurant_url', 'name', 'address', 'category']
+
+
+with open("data.csv", "w", newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    writer.writeheader()
+
+   
+    for data in data_list:
+        writer.writerow(data)
